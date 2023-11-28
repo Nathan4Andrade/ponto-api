@@ -1,0 +1,140 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Session {
+  id         Int      @id @default(autoincrement())
+  employeeId Int
+  Employee   Employee @relation(fields: [employeeId], references: [id])
+  token      String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+// schema.prisma
+
+model Employee {
+  id           Int        @id @default(autoincrement())
+  email        String     @unique @db.VarChar(255)
+  password     String     @db.VarChar(255)
+  status       String     @db.VarChar(255)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  roleId       Int
+  departmentId Int
+  Role         Role       @relation(fields: [roleId], references: [id])
+  Department   Department @relation(fields: [departmentId], references: [id])
+  Schedules    Schedule[]
+  Points       Point[]
+  Sessions     Session[]
+}
+
+// Define table models
+
+model Schedule {
+  id     Int    @id @default(autoincrement())
+  status String
+
+  // Relationships
+  employeeId  Int
+  timeId      Int
+  dayOfWeekId Int
+  Employee    Employee  @relation(fields: [employeeId], references: [id])
+  Time        Time      @relation(fields: [timeId], references: [id])
+  DayOfWeek   DayOfWeek @relation(fields: [dayOfWeekId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Role {
+  id     Int    @id @default(autoincrement())
+  name   String
+  status String
+
+  // Relationships
+  Employees Employee[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Time {
+  id        Int      @id @default(autoincrement())
+  startTime String
+  endTime   String
+  status    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  Schedules Schedule[]
+  Points    Point[]
+}
+
+model Point {
+  id         Int      @id @default(autoincrement())
+  employeeId Int
+  timeId     Int
+  date       DateTime
+  status     String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relationships
+  Employee      Employee     @relation(fields: [employeeId], references: [id])
+  Time          Time         @relation(fields: [timeId], references: [id])
+  Records       Record[]
+  PointStatus   PointStatus? @relation(fields: [pointStatusId], references: [id])
+  pointStatusId Int?
+}
+
+model Department {
+  id        Int      @id @default(autoincrement())
+  name      String
+  status    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  Employees Employee[]
+}
+
+model DayOfWeek {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  Schedules Schedule[]
+}
+
+model Record {
+  id            Int      @id @default(autoincrement())
+  pointId       Int
+  pointStatusId Int
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relationships
+  Point       Point       @relation(fields: [pointId], references: [id])
+  PointStatus PointStatus @relation(fields: [pointStatusId], references: [id])
+}
+
+model PointStatus {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  Records Record[]
+  Points  Point[]
+}
