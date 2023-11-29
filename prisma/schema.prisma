@@ -22,19 +22,21 @@ model Session {
 // schema.prisma
 
 model Employee {
-  id           Int        @id @default(autoincrement())
-  email        String     @unique @db.VarChar(255)
-  password     String     @db.VarChar(255)
-  status       String     @db.VarChar(255)
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-  roleId       Int
-  departmentId Int
-  Role         Role       @relation(fields: [roleId], references: [id])
-  Department   Department @relation(fields: [departmentId], references: [id])
+  id        Int      @id @default(autoincrement())
+  email     String   @unique @db.VarChar(255)
+  password  String   @db.VarChar(255)
+  status    String   @db.VarChar(255)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  roleId    Int
+
+  Role Role @relation(fields: [roleId], references: [id])
+
   Schedules    Schedule[]
   Points       Point[]
   Sessions     Session[]
+  Department   Department? @relation(fields: [departmentId], references: [id])
+  departmentId Int?
 }
 
 // Define table models
@@ -55,14 +57,16 @@ model Schedule {
 }
 
 model Role {
-  id     Int    @id @default(autoincrement())
-  name   String
-  status String
+  id           Int    @id @default(autoincrement())
+  name         String
+  status       String
+  departmentId Int
 
   // Relationships
-  Employees Employee[]
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  Department Department @relation(fields: [departmentId], references: [id])
+  Employees  Employee[]
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
 }
 
 model Time {
@@ -104,6 +108,7 @@ model Department {
 
   // Relationships
   Employees Employee[]
+  Role      Role[]
 }
 
 model DayOfWeek {
