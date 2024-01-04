@@ -21,7 +21,25 @@ async function create(data: Prisma.EmployeeUncheckedCreateInput) {
   });
 }
 
+async function findById(id: number) {
+  return prisma.employee.findUnique({
+    where: {
+      id,
+    },
+  });
+}
+
+export async function hasPermission(employeeId: number) {
+  const employee = await prisma.employee.findUnique({
+    where: { id: employeeId },
+  });
+
+  return employee && employee.role === "MANAGER";
+}
+
 export const employeeRepository = {
   findByEmail,
   create,
+  findById,
+  hasPermission,
 };

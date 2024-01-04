@@ -6,8 +6,7 @@ import { employeeRepository } from "@/repositories";
 export async function createEmployee({
   email,
   password,
-  roleId,
-  departmentId,
+  role,
   status,
 }: CreateEmployeeParams): Promise<Employee> {
   await validateUniqueEmailOrFail(email);
@@ -17,8 +16,7 @@ export async function createEmployee({
     email,
     password: hashedPassword,
     status: status || "ACTIVE",
-    roleId: roleId,
-    departmentId: roleId,
+    role: role,
   });
 }
 
@@ -31,7 +29,7 @@ async function validateUniqueEmailOrFail(email: string) {
 
 export type CreateEmployeeParams = Pick<
   Employee,
-  "email" | "password" | "roleId" | "departmentId" | "status"
+  "email" | "password" | "role" | "status"
 >;
 
 export const employeeService = {

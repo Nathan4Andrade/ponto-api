@@ -28,15 +28,11 @@ model Employee {
   status    String   @db.VarChar(255)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  roleId    Int
+  role      String   @db.VarChar(255)
 
-  Role Role @relation(fields: [roleId], references: [id])
-
-  Schedules    Schedule[]
-  Points       Point[]
-  Sessions     Session[]
-  Department   Department? @relation(fields: [departmentId], references: [id])
-  departmentId Int?
+  Schedules Schedule[]
+  Points    Point[]
+  Sessions  Session[]
 }
 
 // Define table models
@@ -46,91 +42,26 @@ model Schedule {
   status String
 
   // Relationships
-  employeeId  Int
-  timeId      Int
-  dayOfWeekId Int
-  Employee    Employee  @relation(fields: [employeeId], references: [id])
-  Time        Time      @relation(fields: [timeId], references: [id])
-  DayOfWeek   DayOfWeek @relation(fields: [dayOfWeekId], references: [id])
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-}
-
-model Role {
-  id           Int    @id @default(autoincrement())
-  name         String
-  status       String
-  departmentId Int
-
-  // Relationships
-  Department Department @relation(fields: [departmentId], references: [id])
-  Employees  Employee[]
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
-}
-
-model Time {
-  id        Int      @id @default(autoincrement())
-  startTime String
-  endTime   String
-  status    String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relationships
-  Schedules Schedule[]
-  Points    Point[]
+  employeeId Int
+  Employee   Employee @relation(fields: [employeeId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 model Point {
-  id         Int      @id @default(autoincrement())
-  employeeId Int
-  timeId     Int
-  date       DateTime
-  status     String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id             Int      @id @default(autoincrement())
+  employeeId     Int
+  date           DateTime
+  status         String
+  entryTime      DateTime
+  exitTime       DateTime
+  justification  String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   // Relationships
-  Employee      Employee     @relation(fields: [employeeId], references: [id])
-  Time          Time         @relation(fields: [timeId], references: [id])
-  Records       Record[]
-  PointStatus   PointStatus? @relation(fields: [pointStatusId], references: [id])
-  pointStatusId Int?
-}
-
-model Department {
-  id        Int      @id @default(autoincrement())
-  name      String
-  status    String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relationships
-  Employees Employee[]
-  Role      Role[]
-}
-
-model DayOfWeek {
-  id        Int      @id @default(autoincrement())
-  name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relationships
-  Schedules Schedule[]
-}
-
-model Record {
-  id            Int      @id @default(autoincrement())
-  pointId       Int
-  pointStatusId Int
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  // Relationships
-  Point       Point       @relation(fields: [pointId], references: [id])
-  PointStatus PointStatus @relation(fields: [pointStatusId], references: [id])
+  Employee Employee @relation(fields: [employeeId], references: [id])
+  Records  Record[]
 }
 
 model PointStatus {
@@ -141,5 +72,17 @@ model PointStatus {
 
   // Relationships
   Records Record[]
-  Points  Point[]
+}
+
+// Tabela de Registros
+model Record {
+  id            Int      @id @default(autoincrement())
+  pointId       Int
+  pointStatusId Int
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relationships
+  Point       Point       @relation(fields: [pointId], references: [id])
+  PointStatus PointStatus @relation(fields: [pointStatusId], references: [id])
 }
