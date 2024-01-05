@@ -1,8 +1,22 @@
 import Joi from "joi";
-import { CreateEmployeeParams } from "@/services/employees-service";
+import {
+  CreateManagerParams,
+  CreateSubordinateParams,
+} from "@/services/employees-service";
+import { employeeParam } from "@/repositories";
 
-export const createEmployeeSchema = Joi.object<CreateEmployeeParams>({
-  email: Joi.string().email().required(),
+export const createManagerSchema = Joi.object<CreateManagerParams>({
+  user: Joi.string().required(),
+  name: Joi.string().required(),
   password: Joi.string().min(6).required(),
-  role: Joi.string().required(),
+});
+
+export const createSubordinateSchema = Joi.object<CreateSubordinateParams>({
+  user: Joi.string().required(),
+  name: Joi.string().required(),
+  password: Joi.string().min(6).required(),
+});
+
+export const employeeParamsSchema = Joi.object<employeeParam>({
+  employeeId: Joi.number().required(),
 });

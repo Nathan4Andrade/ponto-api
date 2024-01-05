@@ -19,23 +19,25 @@ model Session {
   updatedAt  DateTime @updatedAt
 }
 
-// schema.prisma
-
 model Employee {
   id        Int      @id @default(autoincrement())
-  email     String   @unique @db.VarChar(255)
+  user      String   @unique @db.VarChar(255)
+  name      String   @db.VarChar(255)
   password  String   @db.VarChar(255)
   status    String   @db.VarChar(255)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   role      String   @db.VarChar(255)
+  managerId Int? // Adicionando o campo para o ID do manager
+
+  // Relationships
+  Manager      Employee?  @relation("Employees", fields: [managerId], references: [id])
+  Subordinates Employee[] @relation("Employees") // Employees associados a este manager
 
   Schedules Schedule[]
   Points    Point[]
   Sessions  Session[]
 }
-
-// Define table models
 
 model Schedule {
   id     Int    @id @default(autoincrement())
@@ -49,15 +51,15 @@ model Schedule {
 }
 
 model Point {
-  id             Int      @id @default(autoincrement())
-  employeeId     Int
-  date           DateTime
-  status         String
-  entryTime      DateTime
-  exitTime       DateTime
-  justification  String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id            Int      @id @default(autoincrement())
+  employeeId    Int
+  date          DateTime
+  status        String
+  entryTime     DateTime
+  exitTime      DateTime
+  justification String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   // Relationships
   Employee Employee @relation(fields: [employeeId], references: [id])

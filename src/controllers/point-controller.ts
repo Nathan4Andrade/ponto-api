@@ -1,15 +1,16 @@
 import { Request, Response } from "express";
 import httpStatus from "http-status";
 import { pointService } from "@/services/points-service";
+import { AuthenticatedRequest } from "@/middlewares";
 
-export async function pointsPost(req: Request, res: Response) {
-  const { employeeId, date, status, entryTime, justification } = req.body;
-
+export async function pointsPost(req: AuthenticatedRequest, res: Response) {
+  const { justification } = req.body;
+  const { employeeId } = req;
   const point = await pointService.createPoint({
     employeeId,
-    date,
-    status,
-    entryTime: entryTime ? new Date(`${date} ${entryTime}`) : null,
+    date: new Date(),
+    status: "PENDING",
+    entryTime: new Date(),
     exitTime: null,
     justification: justification || null,
   });
@@ -25,22 +26,30 @@ export async function pointsPost(req: Request, res: Response) {
   });
 }
 
-export async function pointsGet(req: Request, res: Response) {
-  const points = await pointService.getAllPoints();
+export async function pointsGet(req: AuthenticatedRequest, res: Response) {
+  const { employeeId } = req;
+  const points = await pointService.getAllPoints(employeeId);
 
   return res.status(httpStatus.OK).json(points);
 }
 
-export async function pointsGetByEmployeeId(req: Request, res: Response) {
-  const { employeeId } = req.params;
+export async function pointsGetByEmployeeId(
+  req: AuthenticatedRequest,
+  res: Response
+) {
+  const { employeeToGetId } = req.params;
+  const { employeeId } = req;
 
-  const points = await pointService.getPointByEmployeeId(Number(employeeId));
+  const points = await pointService.getPointByEmployeeId(
+    employeeId,
+    Number(employeeToGetId)
+  );
 
   return res.status(httpStatus.OK).json(points);
 }
 
 export async function pointsGetByEmployeeIdAndStatus(
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ) {
   const { employeeId, status } = req.params;
@@ -53,7 +62,15 @@ export async function pointsGetByEmployeeIdAndStatus(
   return res.status(httpStatus.OK).json(points);
 }
 
-export async function endPoint(req: Request, res: Response) {
+export async function pointGetById(req: AuthenticatedRequest, res: Response) {
+  const { pointId } = req.params;
+
+  const point = await pointService.getPointById(Number(pointId));
+
+  return res.status(httpStatus.OK).json(point);
+}
+
+export async function endPoint(req: AuthenticatedRequest, res: Response) {
   const { employeeId, pointId } = req.params;
   const { exitTime } = req.body;
 
@@ -66,7 +83,7 @@ export async function endPoint(req: Request, res: Response) {
   return res.status(httpStatus.OK).json(point);
 }
 
-export async function justifyPoint(req: Request, res: Response) {
+export async function justifyPoint(req: AuthenticatedRequest, res: Response) {
   const { employeeId, pointId } = req.params;
   const { justification } = req.body;
 
@@ -79,7 +96,7 @@ export async function justifyPoint(req: Request, res: Response) {
   return res.status(httpStatus.OK).json(point);
 }
 
-export async function approvePoint(req: Request, res: Response) {
+export async function approvePoint(req: AuthenticatedRequest, res: Response) {
   const { employeeId, pointId } = req.params;
 
   const point = await pointService.approvePoint(
@@ -89,5 +106,3 @@ export async function approvePoint(req: Request, res: Response) {
 
   return res.status(httpStatus.OK).json(point);
 }
-
-

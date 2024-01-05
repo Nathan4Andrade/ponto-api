@@ -1,37 +1,62 @@
 import { Employee } from "@prisma/client";
 import bcrypt from "bcrypt";
-import { duplicatedEmailError } from "@/errors";
+import { duplicatedUserError } from "@/errors";
 import { employeeRepository } from "@/repositories";
 
-export async function createEmployee({
-  email,
+async function createManager({
+  user,
+  name,
   password,
-  role,
-  status,
-}: CreateEmployeeParams): Promise<Employee> {
-  await validateUniqueEmailOrFail(email);
+}: CreateManagerParams): Promise<Employee> {
+  await validateUniqueUserOrFail(user);
 
   const hashedPassword = await bcrypt.hash(password, 12);
   return employeeRepository.create({
-    email,
+    user,
+    name,
     password: hashedPassword,
-    status: status || "ACTIVE",
-    role: role,
+    status: "ACTIVE",
+    role: "MANAGER",
   });
 }
 
-async function validateUniqueEmailOrFail(email: string) {
-  const userWithSameEmail = await employeeRepository.findByEmail(email);
-  if (userWithSameEmail) {
-    throw duplicatedEmailError();
+async function createSubordinate({
+  user,
+  name,
+  password,
+  managerId,
+}: CreateSubordinateParams): Promise<Employee> {
+  await validateUniqueUserOrFail(user);
+
+  const hashedPassword = await bcrypt.hash(password, 12);
+  return employeeRepository.create({
+    user,
+    name,
+    password: hashedPassword,
+    status: "ACTIVE",
+    role: "SUBORDINATE",
+    managerId,
+  });
+}
+
+async function validateUniqueUserOrFail(user: string) {
+  const duplicateUser = await employeeRepository.findByUser(user);
+  if (duplicateUser) {
+    throw duplicatedUserError();
   }
 }
 
-export type CreateEmployeeParams = Pick<
+export type CreateManagerParams = Pick<
   Employee,
-  "email" | "password" | "role" | "status"
+  "user" | "name" | "password" 
+>;
+
+export type CreateSubordinateParams = Pick<
+  Employee,
+  "user" | "name" | "password" | "managerId"
 >;
 
 export const employeeService = {
-  createEmployee,
+  createManager,
+  createSubordinate,
 };

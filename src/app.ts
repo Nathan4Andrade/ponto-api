@@ -13,7 +13,7 @@ app
   .use(cors())
   .use(express.json())
   .get("/health", (_req, res) => res.send("OK!"))
-  .use("/users", employeesRouter)
+  .use("/employees", employeesRouter)
   .use("/auth", authenticationRouter)
   .use("/points", pointsRouter)
   .use(handleApplicationErrors);

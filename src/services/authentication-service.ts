@@ -6,24 +6,24 @@ import { authenticationRepository, employeeRepository } from "@/repositories";
 import { exclude } from "@/utils/prisma-utils";
 
 async function signIn(params: SignInParams): Promise<SignInResult> {
-  const { email, password } = params;
+  const { user, password } = params;
 
-  const user = await getUserOrFail(email);
+  const employee = await getUserOrFail(user);
 
-  await validatePasswordOrFail(password, user.password);
+  await validatePasswordOrFail(password, employee.password);
 
-  const token = await createSession(user.id);
+  const token = await createSession(employee.id);
 
   return {
-    user: exclude(user, "password"),
+    user: exclude(employee, "password"),
     token,
   };
 }
 
-async function getUserOrFail(email: string): Promise<GetUserOrFailResult> {
-  const employee = await employeeRepository.findByEmail(email, {
+async function getUserOrFail(user: string): Promise<GetUserOrFailResult> {
+  const employee = await employeeRepository.findByUser(user, {
     id: true,
-    email: true,
+    user: true,
     password: true,
   });
   if (!employee) throw invalidCredentialsError();
@@ -46,14 +46,14 @@ async function validatePasswordOrFail(password: string, userPassword: string) {
   if (!isPasswordValid) throw invalidCredentialsError();
 }
 
-export type SignInParams = Pick<Employee, "email" | "password">;
+export type SignInParams = Pick<Employee, "user" | "password">;
 
 type SignInResult = {
-  user: Pick<Employee, "id" | "email">;
+  user: Pick<Employee, "id" | "user">;
   token: string;
 };
 
-type GetUserOrFailResult = Pick<Employee, "id" | "email" | "password">;
+type GetUserOrFailResult = Pick<Employee, "id" | "user" | "password">;
 
 export const authenticationService = {
   signIn,

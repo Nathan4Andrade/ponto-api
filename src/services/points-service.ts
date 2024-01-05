@@ -21,19 +21,20 @@ export async function createPoint({
 
   return pointRepository.createPoint({
     employeeId,
-    date: date || new Date(),
-    status: status || "PENDING",
+    date: new Date(),
+    status: "PENDING",
     entryTime: new Date(`${date} ${entryTime}`),
     exitTime: null,
     justification: justification || null,
   });
 }
 
-export async function getAllPoints() {
+export async function getAllPoints(userId: number) {
+  if (!employeeRepository.hasPermission(userId)) throw permissionError();
   return pointRepository.getAllPoints();
 }
 
-export function getPointByEmployeeId(employeeId: number) {
+export function getPointByEmployeeId(userId: number, employeeId: number) {
   return pointRepository.findByEmployeeId(employeeId);
 }
 
@@ -62,6 +63,10 @@ export function justifyPoint(
   });
 }
 
+export function getPointById(pointId: number) {
+  return pointRepository.findPointById(pointId);
+}
+
 export function approvePoint(employeeId: number, pointId: number) {
   if (!employeeRepository.hasPermission(employeeId)) throw permissionError();
 
@@ -78,6 +83,7 @@ export type CreatePointParams = Pick<
 export const pointService = {
   createPoint,
   getAllPoints,
+  getPointById,
   getPointByEmployeeId,
   getPointsByEmployeeIdAndStatus,
   endPoint,

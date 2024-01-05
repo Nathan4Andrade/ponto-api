@@ -1,13 +1,13 @@
 import Joi from "joi";
 import { CreatePointParams } from "@/services";
+import { PointParam } from "@/repositories";
 
 export const createPointSchema = Joi.object<CreatePointParams>({
   employeeId: Joi.number().required(),
-  date: Joi.date().required(),
   status: Joi.string().required(),
-  entryTime: Joi.date().required(),
   justification: Joi.string().optional(),
 });
 
-// Compare this snippet from src/schemas/index.ts:
-// import { createEmployeeSchema } from "./employee-schemas";
+export const pointParamsSchema = Joi.object<PointParam>({
+  pointId: Joi.number().required(),
+});

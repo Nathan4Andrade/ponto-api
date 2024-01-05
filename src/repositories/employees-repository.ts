@@ -1,10 +1,10 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/config";
 
-async function findByEmail(email: string, select?: Prisma.EmployeeSelect) {
+async function findByUser(user: string, select?: Prisma.EmployeeSelect) {
   const params: Prisma.EmployeeFindUniqueArgs = {
     where: {
-      email,
+      user,
     },
   };
 
@@ -28,8 +28,7 @@ async function findById(id: number) {
     },
   });
 }
-
-export async function hasPermission(employeeId: number) {
+async function hasPermission(employeeId: number) {
   const employee = await prisma.employee.findUnique({
     where: { id: employeeId },
   });
@@ -38,8 +37,10 @@ export async function hasPermission(employeeId: number) {
 }
 
 export const employeeRepository = {
-  findByEmail,
+  findByUser,
   create,
   findById,
   hasPermission,
 };
+
+export type employeeParam = { employeeId: number };

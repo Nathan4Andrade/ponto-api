@@ -60,6 +60,14 @@ async function findByEmployeeIdAndDate(employeeId: number, date: Date) {
     },
   });
 }
+
+async function findPointById(pointId: number) {
+  return prisma.point.findUnique({
+    where: {
+      id: pointId,
+    },
+  });
+}
 export const pointRepository = {
   createPoint,
   findByEmployeeIdAndStatus,
@@ -67,4 +75,7 @@ export const pointRepository = {
   getAllPoints,
   updatePoint,
   findByEmployeeIdAndDate,
+  findPointById,
 };
+
+export type PointParam = { pointId: number };
