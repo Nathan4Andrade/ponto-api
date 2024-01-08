@@ -7,8 +7,8 @@ import { managerPost, subordinatePost } from "@/controllers";
 const employeesRouter = Router();
 
 employeesRouter
-  .all("/*", authenticateToken)
   .post("/manager", validateBody(createManagerSchema), managerPost)
+  .all("/*", authenticateToken)
   .post("/subordinate", validateBody(createSubordinateSchema), subordinatePost);
 
 export { employeesRouter };

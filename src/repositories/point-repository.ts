@@ -1,10 +1,14 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/config";
 import { notFoundError } from "@/errors";
+import { exclude } from "@/utils/prisma-utils";
 
-async function createPoint(data: Prisma.PointUncheckedCreateInput) {
+async function createPoint(employeeId: number, point: Prisma.PointCreateInput) {
   return prisma.point.create({
-    data,
+    data: {
+      ...point,
+      Employee: { connect: { id: employeeId } },
+    },
   });
 }
 
@@ -25,8 +29,14 @@ async function findByEmployeeId(employeeId: number) {
   });
 }
 
-async function getAllPoints() {
-  return prisma.point.findMany();
+async function getAllPoints(employeeId: number) {
+  return prisma.point.findMany({
+    where: { employeeId },
+  });
+}
+
+async function getAllPointsByManager(managerId: number) {
+  return prisma.point.findMany({ where: { Employee: { managerId } } });
 }
 
 async function updatePoint(
@@ -52,7 +62,24 @@ async function updatePoint(
   });
 }
 
-async function findByEmployeeIdAndDate(employeeId: number, date: Date) {
+async function approvePoint(pointId: number, data: Prisma.PointUpdateInput) {
+  const existingPoint = await prisma.point.findUnique({
+    where: {
+      id: pointId,
+    },
+  });
+
+  if (!existingPoint) throw notFoundError();
+
+  return prisma.point.update({
+    where: {
+      id: pointId,
+    },
+    data,
+  });
+}
+
+async function findByEmployeeIdAndDate(employeeId: number, date: string) {
   return prisma.point.findMany({
     where: {
       employeeId,
@@ -76,6 +103,8 @@ export const pointRepository = {
   updatePoint,
   findByEmployeeIdAndDate,
   findPointById,
+  getAllPointsByManager,
+  approvePoint,
 };
 
 export type PointParam = { pointId: number };

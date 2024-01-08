@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Point" ALTER COLUMN "entryTime" SET DATA TYPE TEXT;

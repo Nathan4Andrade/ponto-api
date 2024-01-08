@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import * as jwt from "jsonwebtoken";
-import { unauthorizedError } from "@/errors";
-import { authenticationRepository } from "@/repositories";
+import { paymentError, unauthorizedError } from "@/errors";
+import { authenticationRepository, employeeRepository } from "@/repositories";
 
 export async function authenticateToken(
   req: AuthenticatedRequest,
@@ -21,6 +21,9 @@ export async function authenticateToken(
 
   const session = await authenticationRepository.findSession(token);
   if (!session) throw unauthorizedError();
+
+  const employee = await employeeRepository.findById(employeeId);
+  if (employee.paymentStatus === false) throw paymentError();
 
   req.employeeId = employeeId;
   console.log("employeeId", employeeId);

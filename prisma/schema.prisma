@@ -20,15 +20,16 @@ model Session {
 }
 
 model Employee {
-  id        Int      @id @default(autoincrement())
-  user      String   @unique @db.VarChar(255)
-  name      String   @db.VarChar(255)
-  password  String   @db.VarChar(255)
-  status    String   @db.VarChar(255)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  role      String   @db.VarChar(255)
-  managerId Int? // Adicionando o campo para o ID do manager
+  id            Int      @id @default(autoincrement())
+  user          String   @unique @db.VarChar(255)
+  name          String   @db.VarChar(255)
+  password      String   @db.VarChar(255)
+  status        String   @db.VarChar(255)
+  paymentStatus Boolean
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  role          String   @db.VarChar(255)
+  managerId     Int? // Adicionando o campo para o ID do manager
 
   // Relationships
   Manager      Employee?  @relation("Employees", fields: [managerId], references: [id])
@@ -53,10 +54,10 @@ model Schedule {
 model Point {
   id            Int      @id @default(autoincrement())
   employeeId    Int
-  date          DateTime
+  date          String
   status        String
-  entryTime     DateTime
-  exitTime      DateTime
+  entryTime     String
+  exitTime      String?
   justification String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt

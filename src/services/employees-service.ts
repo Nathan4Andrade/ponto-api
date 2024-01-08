@@ -1,6 +1,6 @@
 import { Employee } from "@prisma/client";
 import bcrypt from "bcrypt";
-import { duplicatedUserError } from "@/errors";
+import { duplicatedUserError, permissionError } from "@/errors";
 import { employeeRepository } from "@/repositories";
 
 async function createManager({
@@ -17,6 +17,7 @@ async function createManager({
     password: hashedPassword,
     status: "ACTIVE",
     role: "MANAGER",
+    paymentStatus: true,
   });
 }
 
@@ -26,6 +27,8 @@ async function createSubordinate({
   password,
   managerId,
 }: CreateSubordinateParams): Promise<Employee> {
+  if (!(await employeeRepository.hasPermission(managerId)))
+    throw permissionError();
   await validateUniqueUserOrFail(user);
 
   const hashedPassword = await bcrypt.hash(password, 12);
@@ -36,6 +39,7 @@ async function createSubordinate({
     status: "ACTIVE",
     role: "SUBORDINATE",
     managerId,
+    paymentStatus: true,
   });
 }
 
@@ -46,10 +50,7 @@ async function validateUniqueUserOrFail(user: string) {
   }
 }
 
-export type CreateManagerParams = Pick<
-  Employee,
-  "user" | "name" | "password" 
->;
+export type CreateManagerParams = Pick<Employee, "user" | "name" | "password">;
 
 export type CreateSubordinateParams = Pick<
   Employee,

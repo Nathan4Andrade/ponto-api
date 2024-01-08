@@ -6,3 +6,4 @@ export * from "./invalid-data-error";
 export * from "./not-found-error";
 export * from "./duplicate-point-error";
 export * from "./permission-error";
+export * from "./payment-error";

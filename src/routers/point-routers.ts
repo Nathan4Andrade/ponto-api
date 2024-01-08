@@ -1,6 +1,10 @@
 import { Router } from "express";
 
-import { createPointSchema, pointParamsSchema } from "@/schemas";
+import {
+  createPointSchema,
+  justifyPointSchema,
+  pointParamsSchema,
+} from "@/schemas";
 import { authenticateToken, validateBody, validateParams } from "@/middlewares";
 import {
   pointsPost,
@@ -11,6 +15,7 @@ import {
   justifyPoint,
   approvePoint,
   pointGetById,
+  getAllPointsByManager,
 } from "@/controllers";
 
 const pointsRouter = Router();
@@ -20,16 +25,18 @@ pointsRouter
   .post("/", validateBody(createPointSchema), pointsPost)
   .get("/", pointsGet)
   .get("/:pointId", validateParams(pointParamsSchema), pointGetById)
-  .get("/:employeeId", pointsGetByEmployeeId)
-  .get("/:employeeId/:status", pointsGetByEmployeeIdAndStatus)
-  .put("/:employeeId/:pointId/end", validateParams(pointParamsSchema), endPoint)
+  .get("/manager/allPoints", getAllPointsByManager)
+  .get("/manager/:employeeToGetId", pointsGetByEmployeeId)
+  .get("/manager/:employeeId/:status", pointsGetByEmployeeIdAndStatus)
+  .put("/:pointId/end", validateParams(pointParamsSchema), endPoint)
   .put(
-    "/:employeeId/:pointId/justify",
+    "/:pointId/justify",
     validateParams(pointParamsSchema),
+    validateBody(justifyPointSchema),
     justifyPoint
   )
   .put(
-    "/:employeeId/:pointId/approve",
+    "/manager/:pointId/approve",
     validateParams(pointParamsSchema),
     approvePoint
   );
